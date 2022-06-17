@@ -2,7 +2,7 @@ name = Search API Attachments Multifield
 description = "Extends the attachments indexing to file fields in a multifield field"
 dependencies[] = multifield
 dependencies[] = search_api_attachments
-core = 7.x
+backdrop = 1.x
+type = module
 package = Search
 
-files[] = includes/callback_attachments_multifield_settings.inc

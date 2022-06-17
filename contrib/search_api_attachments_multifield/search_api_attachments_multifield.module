@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Drupal hooks.
+ * Backdrop hooks.
  */
 
 /**
- * Implements hook_help().
+ * Implements hook_help().().
  */
 function search_api_attachments_multifield_help($path, $arg) {
   switch ($path) {
@@ -45,7 +45,7 @@ function search_api_attachments_multifield_help($path, $arg) {
 }
 
 /**
- * Implements hook_search_api_alter_callback_info().
+ * Implements hook_search_api_alter_callback_info().().
  */
 function search_api_attachments_multifield_search_api_alter_callback_info() {
   $callbacks['search_api_attachments_multifield_alter_settings'] = array(
@@ -54,4 +54,13 @@ function search_api_attachments_multifield_search_api_alter_callback_info() {
     'class' => 'SearchApiAttachmentsMultifieldAlterSettings',
   );
   return $callbacks;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function search_api_attachments_multifield_autoload_info() {
+  return array(
+    'SearchApiAttachmentsMultifieldAlterSettings' => 'includes/callback_attachments_multifield_settings.inc',
+  );
 }

@@ -23,7 +23,8 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
           // multiple values fields.
           if (isset($links['url'])) {
             $links = array($links);
-          } else if ($links == NULL) {
+          }
+          else if ($links == NULL) {
             $links = [];
           }
           // Limit to the max number of value per field.
@@ -96,7 +97,8 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
     $headers = get_headers($url, 1);
     if (isset($headers['Content-Length'])) {
       return $headers['Content-Length'];
-    } else {
+    }
+    else {
       return false;
     }
   }
@@ -138,6 +140,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
         $extraction = $this->extract_exif($link);
       }
       else {
+        // TODO This variable was probably removed in Backdrop without replacement.
         $extraction_method = variable_get('search_api_attachments_extract_using', 'tika');
         // Send the extraction request to the right place depending on the
         // current setting.
@@ -148,6 +151,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
           if (in_array($headers['Content-Type'], $this->pdf_mimetypes())) {
             $extraction = $this->extract_python_pdf2txt($link);
           }
+          // TODO This variable was probably removed in Backdrop without replacement.
           elseif (variable_get('search_api_attachments_debug', FALSE)) {
             watchdog('search_api_attachments', 'The python_pdf2txt extraction method does not support %mime_type', array('%mime_type' => $headers['Content-Type']), WATCHDOG_WARNING);
           }
@@ -156,6 +160,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
           if (in_array($headers['Content-Type'], $this->pdf_mimetypes())) {
             $extraction = $this->extract_pdftotext($link);
           }
+          // TODO This variable was probably removed in Backdrop without replacement.
           elseif (variable_get('search_api_attachments_debug', FALSE)) {
             watchdog('search_api_attachments', 'The pdftotext extraction method does not support %mime_type', array('%mime_type' => $headers['Content-Type']), WATCHDOG_WARNING);
           }
@@ -174,6 +179,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
     if ($extraction !== FALSE && isset($cid)) {
       cache_set($cid, $extraction, self::CACHE_TABLE);
     }
+    // TODO This variable was probably removed in Backdrop without replacement.
     if (variable_get('search_api_attachments_debug', FALSE)) {
       watchdog('search_api_attachments', "File: @filename\nExtraction: @extraction", array('@filename' => $link['url'], '@extraction' => $extraction), WATCHDOG_DEBUG);
     }

@@ -1,11 +1,10 @@
 name = Search API attachments
 description = "Provides a generic API for modules offering search capabilities."
-core = 7.x
+backdrop = 1.x
+type = module
 package = Search
 configure = admin/config/search/search_api/attachments
 
 dependencies[] = file
 dependencies[] = search_api
 
-files[] = includes/callback_attachments_settings.inc
-files[] = includes/views/search_api_attachments_views_handler_attachments_filter.inc

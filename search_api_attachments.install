@@ -6,16 +6,17 @@
  */
 
 /**
- * Implements hook_requirements().
+ * Implements hook_requirements().().
  */
 function search_api_attachments_requirements($phase) {
+  $config = config('search_api_attachments.settings');
   $requirements = array();
   $t = get_t();
   if ($phase == 'runtime') {
     // We only need to test Java if we're using a local tika extractor.
-    if (variable_get('search_api_attachments_extract_using', 'tika') == 'tika') {
+    if ($config->get('search_api_attachments_extract_using') == 'tika') {
       $temp = tempnam(file_directory_temp(), 'asa');
-      $cmd = variable_get('search_api_attachments_java', 'java') . ' -version > ' . $temp . ' 2>&1';
+      $cmd = $config->get('search_api_attachments_java') . ' -version > ' . $temp . ' 2>&1';
       if (strpos(ini_get('extension_dir'), 'MAMP/')) {
         $cmd = 'export DYLD_LIBRARY_PATH=""; ' . $cmd;
       }
@@ -52,60 +53,74 @@ function search_api_attachments_requirements($phase) {
 }
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_uninstall().().
  */
 function search_api_attachments_uninstall() {
-  variable_del('search_api_attachments_tika_path');
-  variable_del('search_api_attachments_tika_jar');
-  variable_del('search_api_attachments_extracting_servlet_path');
+  config_clear('search_api_attachments.settings', 'search_api_attachments_tika_path');
+  config_clear('search_api_attachments.settings', 'search_api_attachments_tika_jar');
+  config_clear('search_api_attachments.settings', 'search_api_attachments_extracting_servlet_path');
 }
 
 /**
- * Implements hook_schema().
+ * Implements hook_schema().().
  */
 function search_api_attachments_schema() {
-  // Create a standard Drupal cache table.
+  // Create a standard Backdrop cache table.
   // We'll be using this store file extractions.
-  $schema['cache_search_api_attachments'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_search_api_attachments'] = backdrop_get_schema_unprocessed('system', 'cache');
   return $schema;
 }
 
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function search_api_attachments_update_7101() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function search_api_attachments_update_7102() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function search_api_attachments_update_7103() { }
+
 /**
- * Add a cache table to store file extractions.
+ * Implements hook_update_last_removed().
  */
-function search_api_attachments_update_7101() {
-  if (!db_table_exists('cache_search_api_attachments')) {
-    $schema = search_api_attachments_schema();
-    db_create_table('cache_search_api_attachments', $schema['cache_search_api_attachments']);
-  }
+function search_api_attachments_update_last_removed() {
+  return 7103;
 }
 
 /**
- * Set excluded_private to FALSE for existing websites to preserve behavior.
+ * Migrate search_api_attachments variables to config.
  */
-function search_api_attachments_update_7102() {
-  $search_api_indexes = db_select('search_api_index')
-    ->fields('search_api_index', array('machine_name'))
-    ->execute()
-    ->fetchCol();
+function search_api_attachments_update_1000() {
+  $config = config('search_api_attachments.settings');
+  $config->set('search_api_attachments_extract_using', update_variable_get('search_api_attachments_extract_using', 'tika'));
+  $config->set('search_api_attachments_debug', update_variable_get('search_api_attachments_debug', array()));
+  $config->set('search_api_attachments_tika_path', update_variable_get('search_api_attachments_tika_path', ''));
+  $config->set('search_api_attachments_tika_jar', update_variable_get('search_api_attachments_tika_jar', 'tika-app-1.6.jar'));
+  $config->set('search_api_attachments_java', update_variable_get('search_api_attachments_java', 'java'));
+  $config->set('search_api_attachments_tika_server_host', update_variable_get('search_api_attachments_tika_server_host', 'localhost'));
+  $config->set('search_api_attachments_tika_server_port', update_variable_get('search_api_attachments_tika_server_port', '9998'));
+  $config->set('search_api_attachments_python_pdf2txt_path', update_variable_get('search_api_attachments_python_pdf2txt_path', '/usr/bin'));
+  $config->set('search_api_attachments_python_pdf2txt_script', update_variable_get('search_api_attachments_python_pdf2txt_script', 'pdf2txt'));
+  $config->set('search_api_attachments_extracting_servlet_path', update_variable_get('search_api_attachments_extracting_servlet_path', 'update/extract'));
+  $config->set('search_api_attachments_preserve_cache', update_variable_get('search_api_attachments_preserve_cache', array()));
+  $config->save();
 
-  $indexes = search_api_index_load_multiple($search_api_indexes);
-
-  if (!empty($indexes)) {
-    foreach ($indexes as $index) {
-      if (isset($index->options['data_alter_callbacks']['search_api_attachments_alter_settings']) && isset($index->options['data_alter_callbacks']['search_api_attachments_alter_settings']['settings'])) {
-        $index->options['data_alter_callbacks']['search_api_attachments_alter_settings']['settings']['excluded_private'] = 0;
-
-        entity_save('search_api_index', $index);
-      }
-    }
-  }
+  update_variable_del('search_api_attachments_extract_using');
+  update_variable_del('search_api_attachments_debug');
+  update_variable_del('search_api_attachments_tika_path');
+  update_variable_del('search_api_attachments_tika_jar');
+  update_variable_del('search_api_attachments_java');
+  update_variable_del('search_api_attachments_tika_server_host');
+  update_variable_del('search_api_attachments_tika_server_port');
+  update_variable_del('search_api_attachments_python_pdf2txt_path');
+  update_variable_del('search_api_attachments_python_pdf2txt_script');
+  update_variable_del('search_api_attachments_extracting_servlet_path');
+  update_variable_del('search_api_attachments_preserve_cache');
 }
 
 /**
- * Clear the menu cache so the updated permissions will be recognized.
+ * Implements hook_install().
  */
-function search_api_attachments_update_7103() {
-  variable_set('menu_rebuild_needed', TRUE);
-  drupal_set_message(t('A new permission was added for configuring the Search API Attachments module, please add it to the appropriate administrative roles.'));
+function search_api_attachments_install() {
+  // Dynamically generated variable data was detected.
 }

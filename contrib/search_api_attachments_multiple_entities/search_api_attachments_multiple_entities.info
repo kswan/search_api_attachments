@@ -1,7 +1,7 @@
 name = Search API Attachments Multiple Entities
 description = Extends the attachments indexing to file fields in multiple entities
 dependencies[] = search_api
-core = 7.x
+backdrop = 1.x
+type = module
 package = Search
 
-files[] = includes/callback_attachments_multiple_entities_settings.inc

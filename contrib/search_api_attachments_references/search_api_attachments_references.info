@@ -1,9 +1,9 @@
 name = Search API Attachments References
 description = "Extends the attachments indexing to file fields in the referenced entity using the references sub-modules"
-core = 7.x
+backdrop = 1.x
+type = module
 package = Search
 
 dependencies[] = search_api_attachments
 dependencies[] = references
 
-files[] = includes/callback_attachments_references_settings.inc

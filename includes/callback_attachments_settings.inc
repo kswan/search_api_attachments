@@ -23,7 +23,8 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
         $file = array();
         if ($this->isMultipleIndexWithFile()) {
           $file = (array) $item->file;
-        } else {
+        }
+        else {
           foreach ($item as $key => $value) {
             $file[$key] = $value;
           }
@@ -100,10 +101,11 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
 
     // Checking for missing content.
     if (empty($file)) {
-      watchdog('search_api_attachments', 'file is empty for item %item_title (%item_nid)',
+      watchdog('search_api_attachments', 'file is empty for item %item_title (%item_nid)', 
         array(
-          '%item_title' => empty($item->title) ? t('empty') : $item->title,
-          '%item_nid' => empty($item->nid) ? (empty($item->id) ? t('empty') : $item->id) : $item->nid),
+        '%item_title' => empty($item->title)?t('empty') : $item->title,
+        '%item_nid' => empty($item->nid) ? (empty($item->id)?t('empty') : $item->id) : $item->nid,
+      ), 
         WATCHDOG_ERROR);
     }
     // Private file restriction.
@@ -266,6 +268,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
    *   The extracted content.
    */
   protected function getFileContent($file) {
+    $config = config('search_api_attachments.settings');
     $extraction = FALSE;
     // Let's make the variable consistent.
     $file = (array) $file;
@@ -291,7 +294,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
         $extraction = $this->extractExif($file);
       }
       else {
-        $extraction_method = variable_get('search_api_attachments_extract_using', 'tika');
+        $extraction_method = $config->get('search_api_attachments_extract_using');
         // Send the extraction request to the right place depending on the
         // current setting.
         if ($extraction_method == 'tika') {
@@ -304,7 +307,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
           if (in_array($file['filemime'], $this->pdfMimetypes())) {
             $extraction = $this->extractPythonPdf2txt($file);
           }
-          elseif (variable_get('search_api_attachments_debug', FALSE)) {
+          elseif ($config->get('search_api_attachments_debug')) {
             watchdog('search_api_attachments', 'The python_pdf2txt extraction method does not support %mime_type', array('%mime_type' => $file['filemime']), WATCHDOG_WARNING);
           }
         }
@@ -312,7 +315,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
           if (in_array($file['filemime'], $this->pdfMimetypes())) {
             $extraction = $this->extractPdftotext($file);
           }
-          elseif (variable_get('search_api_attachments_debug', FALSE)) {
+          elseif ($config->get('search_api_attachments_debug')) {
             watchdog('search_api_attachments', 'The pdftotext extraction method does not support %mime_type', array('%mime_type' => $file['filemime']), WATCHDOG_WARNING);
           }
         }
@@ -330,7 +333,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
     if ($extraction !== FALSE && isset($cid)) {
       cache_set($cid, $extraction, self::CACHE_TABLE);
     }
-    if (variable_get('search_api_attachments_debug', FALSE)) {
+    if ($config->get('search_api_attachments_debug')) {
       watchdog('search_api_attachments', "File: @filename\nExtraction: @extraction", array('@filename' => $file['uri'], '@extraction' => $extraction), WATCHDOG_DEBUG);
     }
     return $extraction;
@@ -393,9 +396,10 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
    * @throws Exception
    */
   protected function extractTika($file) {
+    $config = config('search_api_attachments.settings');
     $filepath = $this->getRealpath($file);
-    $tika_path = realpath(variable_get('search_api_attachments_tika_path', ''));
-    $tika = realpath($tika_path . '/' . variable_get('search_api_attachments_tika_jar', 'tika-app-1.6.jar'));
+    $tika_path = realpath($config->get('search_api_attachments_tika_path'));
+    $tika = realpath($tika_path . '/' . $config->get('search_api_attachments_tika_jar'));
     if (!($tika) || !is_file($tika)) {
       throw new Exception(t('Invalid path or filename for tika application jar.'));
     }
@@ -413,7 +417,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
     // Force running the Tika jar headless.
     $param = ' -Djava.awt.headless=true ' . $param;
 
-    $cmd = variable_get('search_api_attachments_java', 'java') . $param . ' -jar ' . escapeshellarg($tika) . ' -t ' . escapeshellarg($filepath);
+    $cmd = $config->get('search_api_attachments_java') . $param . ' -jar ' . escapeshellarg($tika) . ' -t ' . escapeshellarg($filepath);
     if (strpos(ini_get('extension_dir'), 'MAMP/')) {
       $cmd = 'export DYLD_LIBRARY_PATH=""; ' . $cmd;
     }
@@ -435,9 +439,10 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
    *   The file content.
    */
   protected function extractTikaServer($file) {
+    $config = config('search_api_attachments.settings');
     $filepath = $this->getRealpath($file);
 
-    $url = 'http://' . variable_get('search_api_attachments_tika_server_host', '') . ':' . variable_get('search_api_attachments_tika_server_port', 9998) . '/tika';
+    $url = 'http://' . $config->get('search_api_attachments_tika_server_host') . ':' . $config->get('search_api_attachments_tika_server_port') . '/tika';
 
     // Server tika.
     $ch = curl_init($url);
@@ -494,10 +499,11 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
    *   The file content.
    */
   protected function extractPythonPdf2txt($file) {
+    $config = config('search_api_attachments.settings');
     $filepath = $this->getRealpath($file);
     // Restore the locale.
-    $pdf2txt_path = realpath(variable_get('search_api_attachments_python_pdf2txt_path', '/usr/bin'));
-    $pdf2txt = realpath($pdf2txt_path . '/' . variable_get('search_api_attachments_python_pdf2txt_script', 'pdf2txt'));
+    $pdf2txt_path = realpath($config->get('search_api_attachments_python_pdf2txt_path'));
+    $pdf2txt = realpath($pdf2txt_path . '/' . $config->get('search_api_attachments_python_pdf2txt_script'));
     $cmd = escapeshellcmd('python') . ' ' . escapeshellarg($pdf2txt) . ' -C -t text ' . escapeshellarg($filepath);
     // UTF-8 multibyte characters will be stripped by escapeshellargs() for the
     // default C-locale.
@@ -554,7 +560,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
       $solr_connection = $server->getSolrConnection();
 
       // Path for our servlet request.
-      $servlet_path = variable_get('search_api_attachments_extracting_servlet_path', 'update/extract');
+      $servlet_path = config_get('search_api_attachments.settings', 'search_api_attachments_extracting_servlet_path');
 
       // Parameters for the extraction request.
       $params = array(

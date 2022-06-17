@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Drupal hooks.
+ * Backdrop hooks.
  */
 
 /**
- * Implements hook_help().
+ * Implements hook_help().().
  */
 function search_api_attachments_comment_help($path, $arg) {
   switch ($path) {
@@ -45,7 +45,7 @@ function search_api_attachments_comment_help($path, $arg) {
 }
 
 /**
- * Implements hook_search_api_alter_callback_info().
+ * Implements hook_search_api_alter_callback_info().().
  */
 function search_api_attachments_comment_search_api_alter_callback_info() {
   $callbacks['search_api_attachments_comment_alter_settings'] = array(
@@ -57,7 +57,7 @@ function search_api_attachments_comment_search_api_alter_callback_info() {
 }
 
 /**
- * Implements hook_comment_insert().
+ * Implements hook_comment_insert().().
  */
 function search_api_attachments_comment_comment_insert($comment) {
   // Mark the node of the comment to be reindexed.
@@ -65,7 +65,7 @@ function search_api_attachments_comment_comment_insert($comment) {
 }
 
 /**
- * Implements hook_comment_update().
+ * Implements hook_comment_update().().
  */
 function search_api_attachments_comment_comment_update($comment) {
   // Mark the node of the comment to be reindexed.
@@ -73,9 +73,18 @@ function search_api_attachments_comment_comment_update($comment) {
 }
 
 /**
- * Implements hook_comment_delete().
+ * Implements hook_comment_delete().().
  */
 function search_api_attachments_comment_comment_delete($comment) {
   // Mark the node of the comment to be reindexed.
   search_api_track_item_change('node', array($comment->nid));
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function search_api_attachments_comment_autoload_info() {
+  return array(
+    'SearchApiAttachmentsCommentAlterSettings' => 'includes/callback_attachments_comment_settings.inc',
+  );
 }

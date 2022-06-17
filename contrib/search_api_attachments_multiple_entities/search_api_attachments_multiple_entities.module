@@ -1,11 +1,11 @@
 <?php
 /**
  * @file
- * Drupal hooks
+ * Backdrop hooks
  */
 
 /**
- * Implements hook_search_api_alter_callback_info().
+ * Implements hook_search_api_alter_callback_info().().
  */
 function search_api_attachments_multiple_entities_search_api_alter_callback_info() {
   $callbacks['search_api_attachments_multiple_entities_alter_settings'] = array(
@@ -14,4 +14,13 @@ function search_api_attachments_multiple_entities_search_api_alter_callback_info
     'class' => 'SearchApiAttachmentsMultipleEntitiesAlterSettings',
   );
   return $callbacks;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function search_api_attachments_multiple_entities_autoload_info() {
+  return array(
+    'SearchApiAttachmentsMultipleEntitiesAlterSettings' => 'includes/callback_attachments_multiple_entities_settings.inc',
+  );
 }

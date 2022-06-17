@@ -9,6 +9,8 @@
  * Page callback to show the settings for the attachments.
  */
 function search_api_attachments_settings_form($form, &$form_state) {
+  $config = config('search_api_attachments.settings');
+  $form['#config'] = 'search_api_attachments.settings';
   $form['search_api_attachments_extract_using'] = array(
     '#type' => 'radios',
     '#title' => t('Extraction method'),
@@ -20,7 +22,7 @@ function search_api_attachments_settings_form($form, &$form_state) {
       'tika_server' => t('Tika (server)'),
     ),
     '#description' => t('Choose extraction method, remote or local (extraction will be faster if run locally using tika).'),
-    '#default_value' => variable_get('search_api_attachments_extract_using', 'tika'),
+    '#default_value' => $config->get('search_api_attachments_extract_using'),
   );
   $form['search_api_attachments_tika_settings'] = array(
     '#type' => 'fieldset',
@@ -31,13 +33,13 @@ function search_api_attachments_settings_form($form, &$form_state) {
   $form['search_api_attachments_tika_settings']['search_api_attachments_tika_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Tika directory path:'),
-    '#default_value' => variable_get('search_api_attachments_tika_path', ''),
+    '#default_value' => $config->get('search_api_attachments_tika_path'),
     '#description' => t('The full path to tika directory. All library jars must be in the same directory. E.g. /var/apache-tika-4.0/'),
   );
   $form['search_api_attachments_tika_settings']['search_api_attachments_tika_jar'] = array(
     '#type' => 'textfield',
     '#title' => t('Tika jar file:'),
-    '#default_value' => variable_get('search_api_attachments_tika_jar', 'tika-app-1.6.jar'),
+    '#default_value' => $config->get('search_api_attachments_tika_jar'),
     '#description' => t('The name of the tika CLI application jar file, e.g. tika-app-1.6.jar.'),
   );
   $form['search_api_attachments_tika_server_settings'] = array(
@@ -49,13 +51,13 @@ function search_api_attachments_settings_form($form, &$form_state) {
   $form['search_api_attachments_tika_server_settings']['search_api_attachments_tika_server_host'] = array(
     '#type' => 'textfield',
     '#title' => t('Host:'),
-    '#default_value' => variable_get('search_api_attachments_tika_server_host', 'localhost'),
+    '#default_value' => $config->get('search_api_attachments_tika_server_host'),
     '#description' => t('The current host name, E.g. localhost'),
   );
   $form['search_api_attachments_tika_server_settings']['search_api_attachments_tika_server_port'] = array(
     '#type' => 'textfield',
     '#title' => t('Port:'),
-    '#default_value' => variable_get('search_api_attachments_tika_server_port', 9998),
+    '#default_value' => $config->get('search_api_attachments_tika_server_port'),
     '#description' => t('The port tika server is running on'),
   );
   $form['search_api_attachments_python_pdf2txt_settings'] = array(
@@ -67,13 +69,13 @@ function search_api_attachments_settings_form($form, &$form_state) {
   $form['search_api_attachments_python_pdf2txt_settings']['search_api_attachments_python_pdf2txt_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Pdf2txt directory path:'),
-    '#default_value' => variable_get('search_api_attachments_python_pdf2txt_path', '/usr/bin'),
+    '#default_value' => $config->get('search_api_attachments_python_pdf2txt_path'),
     '#description' => t('The full path to python_pdf2txt directory. All library jars must be in the same directory. E.g. /usr/bin'),
   );
   $form['search_api_attachments_python_pdf2txt_settings']['search_api_attachments_python_pdf2txt_script'] = array(
     '#type' => 'textfield',
     '#title' => t('Pdf2txt Script file:'),
-    '#default_value' => variable_get('search_api_attachments_python_pdf2txt_script', 'pdf2txt'),
+    '#default_value' => $config->get('search_api_attachments_python_pdf2txt_script'),
     '#description' => t('The name of the pdf2txt Python Script file, e.g. pdf2txt.'),
   );
   $form['search_api_attachments_solr_settings'] = array(
@@ -85,7 +87,7 @@ function search_api_attachments_settings_form($form, &$form_state) {
   $form['search_api_attachments_solr_settings']['search_api_attachments_extracting_servlet_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Solr extracting servlet path:'),
-    '#default_value' => variable_get('search_api_attachments_extracting_servlet_path', 'update/extract'),
+    '#default_value' => $config->get('search_api_attachments_extracting_servlet_path'),
     '#description' => t('The path to the extracting servlet. E.g. update/extract or extract/tika'),
   );
   $form['search_api_attachments_cache_settings'] = array(
@@ -95,13 +97,13 @@ function search_api_attachments_settings_form($form, &$form_state) {
   );
   $form['search_api_attachments_cache_settings']['search_api_attachments_preserve_cache'] = array(
     '#type' => 'checkbox',
-    '#default_value' => variable_get('search_api_attachments_preserve_cache', FALSE),
+    '#default_value' => $config->get('search_api_attachments_preserve_cache'),
     '#title' => t('Preserve cached extractions across cache clears.'),
     '#description' => t('When checked, clearing the sidewide cache will not clear the cache of extracted files.'),
   );
   $form['search_api_attachments_debug'] = array(
     '#type' => 'checkbox',
-    '#default_value' => variable_get('search_api_attachments_debug', FALSE),
+    '#default_value' => $config->get('search_api_attachments_debug'),
     '#title' => t('Debug extraction of attachments.'),
     '#description' => t('When checked, debugging statements will be logged to watchdog.'),
   );
@@ -127,7 +129,7 @@ function search_api_attachments_settings_form_validate($form, &$form_state) {
     }
     // Check that the file is an executable jar.
     else {
-      $cmd = escapeshellcmd(variable_get('search_api_attachments_java', 'java')) . ' -jar ' . escapeshellarg($tika) . ' -V';
+      $cmd = escapeshellcmd(config_get('search_api_attachments.settings', 'search_api_attachments_java')) . ' -jar ' . escapeshellarg($tika) . ' -V';
       exec($cmd, $output, $return_code);
       // $return_code = 1 if it fails. 0 instead.
       if ($return_code) {

@@ -36,7 +36,7 @@ class SearchApiAttachmentsEntityreferenceAlterSettings extends SearchApiAttachme
 
     foreach ($items as &$item) {
       // Support the search_api_et module. It adds its prefix to entity types.
-      $entity_type = (strpos($this->index->item_type, 'search_api_et_') === 0) ?
+      $entity_type = (strpos($this->index->item_type, 'search_api_et_') === 0)?
         substr($this->index->item_type, 14) : //14 = strlen('search_api_et_').
         $this->index->item_type;
       $item_wrapper = entity_metadata_wrapper($entity_type, $item);

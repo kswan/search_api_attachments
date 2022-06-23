@@ -101,11 +101,11 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
 
     // Checking for missing content.
     if (empty($file)) {
-      watchdog('search_api_attachments', 'file is empty for item %item_title (%item_nid)', 
+      watchdog('search_api_attachments', 'file is empty for item %item_title (%item_nid)',
         array(
         '%item_title' => empty($item->title)?t('empty') : $item->title,
         '%item_nid' => empty($item->nid) ? (empty($item->id)?t('empty') : $item->id) : $item->nid,
-      ), 
+      ),
         WATCHDOG_ERROR);
     }
     // Private file restriction.
@@ -113,7 +113,8 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
       // Extension restriction.
       if (!in_array($file['filemime'], $exclude)) {
         // File size restriction.
-        $file_size_errors = file_validate_size((object) $file, $max_file_size);
+
+        $file_size_errors = parse_size($max_file_size);
         if (empty($file_size_errors)) {
           // Allow customization of indexability rules.
           foreach (module_implements('search_api_attachments_indexable') as $module) {

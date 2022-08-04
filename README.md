@@ -76,16 +76,16 @@ Install Pdf2txt (tested with package version 20110515+dfsg-1 and python 2.7.9)
 
 For each of these, find more details in contrib folder.
 
-search_api_attachments_comment
-search_api_attachments_commerce_product_reference
-search_api_attachments_entityreference
-search_api_attachments_field_collections
-search_api_attachments_links
-search_api_attachments_multifield
-search_api_attachments_multiple_entities
-search_api_attachments_paragraphs
-search_api_attachments_references
-search_api_attachments_user_content
+search_api_attachments_comment\
+search_api_attachments_commerce_product_reference\
+search_api_attachments_entityreference\
+search_api_attachments_field_collections\
+search_api_attachments_links\
+search_api_attachments_multifield\
+search_api_attachments_multiple_entities\
+search_api_attachments_paragraphs\
+search_api_attachments_references\
+search_api_attachments_user_content\
 
 ## Caching
 

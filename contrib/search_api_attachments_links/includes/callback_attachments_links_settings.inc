@@ -141,7 +141,8 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
       }
       else {
         // TODO This variable was probably removed in Backdrop without replacement.
-        $extraction_method = variable_get('search_api_attachments_extract_using', 'tika');
+        $extraction_method = config_get('search_api_attachments_extract_using',
+          'tika');
         // Send the extraction request to the right place depending on the
         // current setting.
         if ($extraction_method == 'tika') {
@@ -152,7 +153,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
             $extraction = $this->extract_python_pdf2txt($link);
           }
           // TODO This variable was probably removed in Backdrop without replacement.
-          elseif (variable_get('search_api_attachments_debug', FALSE)) {
+          elseif (config_get('search_api_attachments_debug', FALSE)) {
             watchdog('search_api_attachments', 'The python_pdf2txt extraction method does not support %mime_type', array('%mime_type' => $headers['Content-Type']), WATCHDOG_WARNING);
           }
         }
@@ -161,7 +162,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
             $extraction = $this->extract_pdftotext($link);
           }
           // TODO This variable was probably removed in Backdrop without replacement.
-          elseif (variable_get('search_api_attachments_debug', FALSE)) {
+          elseif (config_get('search_api_attachments_debug', FALSE)) {
             watchdog('search_api_attachments', 'The pdftotext extraction method does not support %mime_type', array('%mime_type' => $headers['Content-Type']), WATCHDOG_WARNING);
           }
         }
@@ -180,7 +181,7 @@ class SearchApiAttachmentsLinksAlterSettings extends SearchApiAttachmentsAlterSe
       cache_set($cid, $extraction, self::CACHE_TABLE);
     }
     // TODO This variable was probably removed in Backdrop without replacement.
-    if (variable_get('search_api_attachments_debug', FALSE)) {
+    if (config_get('search_api_attachments_debug', FALSE)) {
       watchdog('search_api_attachments', "File: @filename\nExtraction: @extraction", array('@filename' => $link['url'], '@extraction' => $extraction), WATCHDOG_DEBUG);
     }
     return $extraction;

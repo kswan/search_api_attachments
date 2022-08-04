@@ -128,7 +128,7 @@ function search_api_attachments_settings_form_validate($form, &$form_state) {
       form_set_error('search_api_attachments_tika_path', t('Tika jar file not found at this path.'));
     }
     // Check that the file is an executable jar.
-  /*  else {
+    else {
       $cmd = escapeshellcmd(config_get('search_api_attachments.settings', 'search_api_attachments_java')) . ' -jar ' . escapeshellarg($tika) . ' -V';
       exec($cmd, $output, $return_code);
       // $return_code = 1 if it fails. 0 instead.
@@ -136,7 +136,7 @@ function search_api_attachments_settings_form_validate($form, &$form_state) {
         form_set_error('search_api_attachments_tika_path', t('There may be a problem with tika path.'));
         form_set_error('search_api_attachments_tika_jar', t('Tika jar file is not an executable jar. Please check if you have not downloaded a corrupted jar file.'));
       }
-    }*/
+    }
   }
   elseif ($form_state['values']['search_api_attachments_extract_using'] == 'python_pdf2txt') {
     // Pdf2txt extraction without pdf2txt python script error.

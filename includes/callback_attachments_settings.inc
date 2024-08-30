@@ -455,6 +455,7 @@ class SearchApiAttachmentsAlterSettings extends SearchApiAbstractAlterCallback {
     curl_setopt($ch, CURLOPT_INFILE, $fh_res);
     curl_setopt($ch, CURLOPT_INFILESIZE, filesize($file_path_str));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: text/plain'));
     // Send the request.
     $curl_response_res = curl_exec($ch);
     fclose($fh_res);
